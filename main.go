@@ -6,15 +6,44 @@ import (
 )
 
 func main() {
-	stations, err := LoadFromJSON("./data/weather_data.json")
+	stationsJSON, err := LoadFromJSON("./data/weather_data.json")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(len(stations))
-	fmt.Println(len(stations[0].Observations))
+	stationsXML, err := LoadFromXml("./data/weather_data.xml")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	stationsXml, err := LoadFromXml("./data/weather_data.xml")
-	fmt.Println(len(stationsXml))
-	fmt.Println(len(stationsXml[0].Observations))
+	totalJSON := 0
+	for _, s := range stationsJSON {
+		totalJSON += len(s.Observations)
+	}
+
+	totalXML := 0
+	for _, s := range stationsXML {
+		totalXML += len(s.Observations)
+	}
+
+	fmt.Printf("JSON : %d stations, %d observations\n", len(stationsJSON), totalJSON)
+	fmt.Printf("XML  : %d stations, %d observations\n", len(stationsXML), totalXML)
+
+	if len(stationsJSON) == len(stationsXML) && totalJSON == totalXML {
+		fmt.Println("Cohérence : OK")
+	} else {
+		fmt.Println("Cohérence : KO")
+	}
+
+	station, gust := MaxWindGust(stationsJSON)
+	fmt.Printf("Station la plus ventée : %s (%.1f km/h)\n", station.Id, gust)
+
+	for _, s := range stationsJSON {
+		if s.Id == "FR-BOR-001" {
+			fmt.Printf("Temp. moyenne Bordeaux Mérignac : %.1f °C\n", AvgTemperature(s))
+			break
+		}
+	}
+
+	fmt.Printf("Stations par pays : %v\n", CountByCountry(stationsJSON))
 }
