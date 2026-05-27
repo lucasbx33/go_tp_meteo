@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	stations, err := LoadFromJSON("weather_data.json")
+	stations, err := LoadFromJSON("./data/weather_data.json")
 	if err != nil {
 		log.Fatal(err)
 	}
